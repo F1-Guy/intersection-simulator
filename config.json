@@ -1,0 +1,24 @@
+{
+    "GREEN_CARS": 30,
+    "GREEN_BIKES": 10,
+    "RED_TIME_ALL": 10,
+    "SIM_LENGTH": 0.1,
+    "lanes": [
+        {  
+            "type": "bike",
+            "business": 0.1
+        },
+        {
+            "type": "bike",
+            "business": 0.2
+        },
+        {
+            "type": "car",
+            "business": 0.3
+        },
+        {
+            "type": "car",
+            "business": 0.3
+        }
+    ]
+}
