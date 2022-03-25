@@ -50,7 +50,11 @@ class Lane:
 
         # Removes vehicles from lane per conditions
         if self.green_light and (self.vehicle_num > 0):
-            self.vehicle_num -= self.lane_type
+            #To prevent negative bike numbers snice they usually move two at a time
+            if self.lane_type == LaneType.BIKE and (self.vehicle_num == 1):
+                self.vehicle_num -= 1
+            else:
+                self.vehicle_num -= self.lane_type
 
 
 class JsonReader:
