@@ -21,8 +21,8 @@
             "business": 0.3
         },
         {
-            "type": "bike",
-            "business": 0.3
+            "type": "car",
+            "business": 0.4
         }
     ]
 }

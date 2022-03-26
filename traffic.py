@@ -1,4 +1,5 @@
-from typing import List
+from enum import Flag
+from typing import List, Tuple
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -58,12 +59,15 @@ class Lane:
 
 
 class JsonReader:
-    """Helper class to read the config.json file that sets the default values if the file is missing or incorrect
+    """Helper class to read the config.json file that sets the default values if the file is missing or incorrect. It can also return
+    a None value in case the configuration file could not be read correctly
     """
     staticmethod
     def parse(filename : str) -> List[Lane]:
         """Takes a string with the filename as paramater and returns a list of lane object initialized to the values from the file
         """
+        lanes = []
+
         # Varables that need to be changed outside the method
         global GREEN_CARS
         global GREEN_BIKES
@@ -71,32 +75,41 @@ class JsonReader:
         global SIM_LENGTH
         global CYCLE_LENGTH
 
-        # Open file in read mode
-        with open(filename, "r") as f:
-            j = json.load(f)
-            
-            # Checks if values are set in JSON file otherwise it sets defaults
-            GREEN_CARS = j["GREEN_CARS"] if "GREEN_CARS" in j else GREEN_CARS
-            GREEN_BIKES = j["GREEN_BIKES"] if "GREEN_BIKES" in j else GREEN_BIKES
-            RED_TIME_ALL = j["RED_TIME_ALL"] if "RED_TIME_ALL" in j else RED_TIME_ALL
-            SIM_LENGTH = j["SIM_LENGTH"] if "SIM_LENGTH" in j else SIM_LENGTH
-            CYCLE_LENGTH = GREEN_CARS + GREEN_BIKES + 2 * RED_TIME_ALL
+        # If the config file exsits with the proper name
+        if path.exists(CONFIG_PATH):
+            # Open file in read mode
+            with open(filename, "r") as f:
+                try:
+                    j = json.load(f)
+                except json.decoder.JSONDecodeError:
+                    print("WARNING: Configuration file is not properly formated")
+                    return lanes
+                
+                # Checks if values are set in JSON file otherwise it sets defaults
+                GREEN_CARS = j["GREEN_CARS"] if "GREEN_CARS" in j else GREEN_CARS
+                GREEN_BIKES = j["GREEN_BIKES"] if "GREEN_BIKES" in j else GREEN_BIKES
+                RED_TIME_ALL = j["RED_TIME_ALL"] if "RED_TIME_ALL" in j else RED_TIME_ALL
+                SIM_LENGTH = j["SIM_LENGTH"] if "SIM_LENGTH" in j else SIM_LENGTH
+                CYCLE_LENGTH = GREEN_CARS + GREEN_BIKES + 2 * RED_TIME_ALL
 
-            # If lanes in json exist it returns them, otherwise returns empty list
-            lanes = []
-            if not "lanes" in j:
-                return lanes
-            
-            # Creates lane objects from the file and places them in a list
-            for lane in j["lanes"]:
-                lane_type = LaneType.CAR if lane["type"] == "car" else LaneType.BIKE
-                lanes.append(Lane(lane_type, lane["business"]))
+                # If lanes in json exist it returns them, otherwise returns empty list
+                if not "lanes" in j:
+                    return lanes
+                
+                # Creates lane objects from the file and places them in a list
+                for lane in j["lanes"]:
+                    lane_type = LaneType.CAR if lane["type"] == "car" else LaneType.BIKE
+                    lanes.append(Lane(lane_type, lane["business"]))
 
+                return lanes     
+        # If the file doesn't exist
+        else:
+            print("WARNING: File 'config.json' was not found in the script folder")
             return lanes
 
 
 class Main:
-    """Main function called at program starup that contains main execution order
+    """Main function called at program startup that contains main execution order
     """
     def __init__(self):
         # lane_count is only used if the JSON is not correctly read or is missing
@@ -106,32 +119,33 @@ class Main:
         self.lanes = []
 
         # Creates lane objects based on the numbers of lanes in the config file
-        if path.exists(CONFIG_PATH):
-            self.lanes = JsonReader.parse(CONFIG_PATH)
+        self.lanes = JsonReader.parse(CONFIG_PATH)
 
+        # If lanes list is empty
+        if self.lanes:
             # Sorts bikes and car lanes intro seperate list for graph drawing
             bikes = list(filter(lambda a: a.lane_type == LaneType.BIKE, self.lanes))
             cars = list(filter(lambda a: a.lane_type == LaneType.CAR, self.lanes))
-
             # Dinamically adds names for line chart for bikes
             self.columns.append("bikelight")
             for i in range(len(bikes)):
-                self.columns.append("bikes" + str(i+1))
-            
-             # Dinamically adds names for line chart for bikes
+                self.columns.append("Bikes " + str(i+1))
+        
+            # Dinamically adds names for line chart for bikes
             self.columns.append("carlight")
             for i in range(len(cars)):
-                self.columns.append("cars" + str(i+1))
-
-        # Fallbak scenario in case there are not any lanes in the config file and/or it is missing    
+                self.columns.append("Cars " + str(i+1))
+    
+        # Fallbak scenario in case there are not any lanes in the config file
         else:
-            print("WARNING: There was problem with the JSON file")
-            self.columns = ['bikelight', 'bikes1', 'bikes2', 
-                    'carlight', 'cars1', 'cars2']
+            print("WARNING: Using default configuration for simulation")
+            self.columns = ['Bike lanes', 'Bikes 1', 'Bikes 2', 
+                    'Car lanes', 'Cars 1', 'Cars 2']
+            # Automatic lane generation with preset buissines values
             for i in range(self.lane_count):
-                t = LaneType.BIKE if i >= self.lane_count / 2 else LaneType.CAR
-                self.lanes.append(Lane(t, (self.lane_count - i) * 0.1))
-            
+                lane_type = LaneType.BIKE if i >= self.lane_count / 2 else LaneType.CAR
+                self.lanes.append(Lane(lane_type, (self.lane_count - i) * 0.1))
+
         self.bikes = list(filter(lambda a: a.lane_type == LaneType.BIKE, self.lanes))
         self.cars = list(filter(lambda a: a.lane_type == LaneType.CAR, self.lanes))
 
