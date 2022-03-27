@@ -74,6 +74,8 @@ class JsonReader:
         global RED_TIME_ALL
         global SIM_LENGTH
         global CYCLE_LENGTH
+        
+        print("Reading configuration file")
 
         # If the config file exsits with the proper name
         if path.exists(CONFIG_PATH):
@@ -104,7 +106,7 @@ class JsonReader:
                 return lanes     
         # If the file doesn't exist
         else:
-            print("WARNING: File 'config.json' was not found in the script folder")
+            print(f"WARNING: File '{CONFIG_PATH}' was not found in the script folder")
             return lanes
 
 
@@ -151,7 +153,7 @@ class Main:
 
         # Crate pandas dataframe
         self.traffic_data = pd.DataFrame(columns=self.columns)
-        
+        print("Running simulation...")
         # The loop is iterated every second for SIM_LENGTH hours
         loop_count = int(3600 * SIM_LENGTH)
         for i in range(loop_count):
@@ -198,6 +200,7 @@ class Main:
     def draw_graph(self) -> None:
         """Draws the grpah dinamicaly based on simulation parameters
         """
+        print("Displaying the graph")
         ax_traffic = self.traffic_data.plot(figsize=(20,10))
         ax_traffic.set_ylim(0,25)
         ax_traffic.set_xlim(0,SIM_LENGTH*3600) #Resizes the x axis according to simulation lenght
