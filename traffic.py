@@ -84,7 +84,7 @@ class JsonReader:
                 try:
                     j = json.load(f)
                 except json.decoder.JSONDecodeError:
-                    print("WARNING: Configuration file is not properly formated")
+                    print(colored(255, 255, 0,"WARNING: Configuration file is not properly formated"))
                     return lanes
                 
                 # Checks if values are set in JSON file otherwise it sets defaults
@@ -106,7 +106,7 @@ class JsonReader:
                 return lanes     
         # If the file doesn't exist
         else:
-            print(f"WARNING: File '{CONFIG_PATH}' was not found in the script folder")
+            print(colored(255, 255, 0,f"WARNING: File '{CONFIG_PATH}' was not found in the script folder"))
             return lanes
 
 
@@ -140,7 +140,7 @@ class Main:
     
         # Fallbak scenario in case there are not any lanes in the config file
         else:
-            print("WARNING: Using default configuration for simulation")
+            print(colored(255, 255, 0, "WARNING: Using default configuration for simulation"))
             self.columns = ['Bike lanes', 'Bikes 1', 'Bikes 2', 
                     'Car lanes', 'Cars 1', 'Cars 2']
             # Automatic lane generation with preset buissines values
@@ -224,7 +224,10 @@ class Main:
             final.append(car.vehicle_num)
         
         self.traffic_data.loc[index] = final
-                 
+
+
+def colored(r, g, b, text):
+    return "\033[38;2;{};{};{}m{} \033[38;2;255;255;255m".format(r, g, b, text)
 
 if __name__ == "__main__":
     Main()
