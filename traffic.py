@@ -36,18 +36,18 @@ class LaneType:
 class Lane:
     """Contains a defintion with attributes describing the each lane object and a method for updating the number of the vehicles in the queue
     """
-    def __init__(self, lane_type : int, business: float):
+    def __init__(self, lane_type : int, busyness: float):
         self.green_light = False # True if GREEN, False if RED
         self.vehicle_num = 0
         self.lane_type = lane_type
-        self.business = business
+        self.busyness = busyness
 
 
     def update_vehicle_number(self) -> None:
-        """Adds random number (based on the business value of the lane) of vehicles to the queue and removes them if conditions are met
+        """Adds random number (based on the busyness value of the lane) of vehicles to the queue and removes them if conditions are met
         """
-        # Add random nuber of vehicles to lane based on business
-        self.vehicle_num += np.random.poisson(self.business)
+        # Add random nuber of vehicles to lane based on busyness
+        self.vehicle_num += np.random.poisson(self.busyness)
 
         # Removes vehicles from lane per conditions
         if self.green_light and (self.vehicle_num > 0):
@@ -101,7 +101,7 @@ class JsonReader:
                 # Creates lane objects from the file and places them in a list
                 for lane in j["lanes"]:
                     lane_type = LaneType.CAR if lane["type"] == "car" else LaneType.BIKE
-                    lanes.append(Lane(lane_type, lane["business"]))
+                    lanes.append(Lane(lane_type, lane["busyness"]))
 
                 return lanes     
         # If the file doesn't exist
@@ -143,7 +143,7 @@ class Main:
             print(colored(255, 255, 0, "WARNING: Using default configuration for simulation"))
             self.columns = ['Bike lanes', 'Bikes 1', 'Bikes 2', 
                     'Car lanes', 'Cars 1', 'Cars 2']
-            # Automatic lane generation with preset buissines values
+            # Automatic lane generation with preset busyness values
             for i in range(self.lane_count):
                 lane_type = LaneType.BIKE if i >= self.lane_count / 2 else LaneType.CAR
                 self.lanes.append(Lane(lane_type, (self.lane_count - i) * 0.1))

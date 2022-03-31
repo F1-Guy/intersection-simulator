@@ -6,23 +6,23 @@
     "lanes": [
         {  
             "type": "bike",
-            "business": 0.1
+            "busyness": 0.1
         },
         {
             "type": "bike",
-            "business": 0.2
+            "busyness": 0.2
         },
         {
             "type": "car",
-            "business": 0.3
+            "busyness": 0.3
         },
         {
             "type": "car",
-            "business": 0.3
+            "busyness": 0.3
         },
         {
             "type": "car",
-            "business": 0.3
+            "busyness": 0.3
         }
     ]
 }

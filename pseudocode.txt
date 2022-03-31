@@ -1,0 +1,33 @@
+// All variables used are class attributes
+METHOD update_vehicle_number(){
+    vehicles_in_queue = CALL random.poisson(busyness)
+
+    IF traffic_light IS green AND vehicles_in_queue > 0
+        IF lane_type == bike AND vehicles_in_queue == 1
+            only remove one bike from vehicles_in_queue instead of usual two
+        ELSE
+            // Depends on lane_type
+            remove one cars or two bikes from vehicles_in_queue
+end
+}
+
+METHOD loop(iteration){
+    tick = what second it is in the current cycle
+
+    IF tick == 0
+        CALL set_lanes(car lanes, red traffic light)
+        CALL set_lanes(bike lanes, green light)
+    ELSE IF tick == duration of green light for bikes
+        CALL set_lanes(bike lanes, red ight)
+    ELSE IF tick == green light for bikes + duration of red light
+        CALL set_lanes(car lanes, green light)
+    ELSE IF tick == tick state from previous chehck + duration of green light for cars
+        CALL set_lanes(car lanes, red light)
+
+    FOR EACH lane in list of lanes
+        CALL update_vehicle_number()
+
+    // Adds data to graph for that tick
+    CALL add_row(iteration)
+END
+}
